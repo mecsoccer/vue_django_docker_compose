@@ -12,8 +12,6 @@ services:
   db:
     container_name: db
     image: postgres:13.0-alpine
-    ports:
-      - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
@@ -21,8 +19,10 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     networks:
-      - backend
+      - backend_net
   backend:
+    container_name: django_backend
+    command: python manage.py runserver 0.0.0.0:8000
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -35,9 +35,9 @@ services:
     depends_on:
       - db
     networks:
-      - backend
+      - backend_net
 networks:
-  backend:
+  backend_net:
     driver: bridge
 volumes:
   postgres_data:
