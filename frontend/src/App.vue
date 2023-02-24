@@ -24,6 +24,7 @@ html, body{
   color: #2c3e50;
   footer{
     color: #F8F8F8;
+    padding: 15px 0;
   }
 }
 

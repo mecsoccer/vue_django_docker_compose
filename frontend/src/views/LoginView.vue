@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts">
+import { storeAccessToken, storeRefreshToken } from '@/utils/storage.util'
 import { fetchUserProfile } from '@/utils/users.util'
 import { Component, Vue } from 'vue-property-decorator'
 import api from '../services/api'
@@ -58,14 +59,14 @@ export default class Login extends Vue {
       password: this.formValues.password
     }
     this.loading = true
-    api().post('token/', payload)
+    api.post('token/', payload)
       .then((data) => {
         this.loading = false
-        localStorage.setItem('ACCESS_TOKEN', data.data.access)
-        localStorage.setItem('REFRESH_TOKEN', data.data.refresh)
+        storeAccessToken(data.data.access)
+        storeRefreshToken(data.data.refresh)
         const tokenPayload = window.atob(data.data.access?.split('.')[1] || '')
         const { user_id: user } = JSON.parse(tokenPayload)
-        fetchUserProfile(user)
+        return fetchUserProfile(user)
       })
       .then(() => {
         this.$router.push('/dashboard')
@@ -103,7 +104,7 @@ export default class Login extends Vue {
     padding: 5%;
   }
   .logo-container{
-    margin-bottom: 20px;
+    margin-bottom: 50px;
     img{
       width: 60%;
       max-width: 200px;

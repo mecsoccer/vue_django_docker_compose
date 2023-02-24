@@ -46,8 +46,8 @@
 import { Component, Vue } from 'vue-property-decorator'
 import api from '../services/api'
 import Pagination from 'vue-pagination-2'
-import { saveUser } from '@/utils/users.util'
-import { retrieveAccessToken, retrieveRefreshToken, storeAccessToken } from '@/utils/storage.util'
+import { getUser } from '@/utils/users.util'
+import { retrieveAccessToken } from '@/utils/storage.util'
 
 interface ChargeSessionData {
   id: number,
@@ -62,8 +62,9 @@ interface ChargeSessionData {
 export default class Login extends Vue {
   showLogout = false
   page = 1
-  user = JSON.parse(localStorage.getItem('USER') as any)
+  user = getUser()
   chargeSessionCost: Array<ChargeSessionData> = []
+
   logout (): void {
     localStorage.clear()
     this.$router.push('/login')
@@ -71,40 +72,24 @@ export default class Login extends Vue {
 
   handlePaginate (page: number): void {
     this.page = page
-    this.getDashboardData(this.user.id, page)
+    this.getDashboardData(getUser().id, page)
   }
 
-  getDashboardData (user?: number, page?: number): void {
-    api().get('/chargesessioncost/', { params: { user_info: user, page } })
+  getDashboardData (user: number, page: number): void {
+    api.get('/chargesessioncost/', { params: { user_info: user, page } })
       .then((data) => {
         this.chargeSessionCost = data.data
       })
+      .catch((error) => console.log(error))
   }
 
   mounted (): void {
     const accessToken = retrieveAccessToken()
-    const refreshToken = retrieveRefreshToken()
     const tokenPayload = window.atob(accessToken?.split('.')[1] || '')
     if (!tokenPayload) {
       this.$router.push('/login')
     }
-    const { exp, user_id: user } = JSON.parse(tokenPayload)
-    const expired = new Date() > new Date(exp * 1000)
-    if (expired) {
-      api().post('token/refresh/', { refresh: refreshToken })
-        .then((data) => {
-          storeAccessToken(data.data.access)
-          return api().get(`userinfo/users/${user}/`)
-        })
-        .then((userData) => {
-          saveUser(userData.data)
-        })
-        .catch(({ response }) => {
-          if (!response) return alert('network error')
-          localStorage.clear()
-          this.$router.push('/login')
-        })
-    }
+    const { user_id: user } = JSON.parse(tokenPayload)
     this.getDashboardData(user, 1)
   }
 }
