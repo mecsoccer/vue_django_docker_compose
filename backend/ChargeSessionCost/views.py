@@ -1,13 +1,9 @@
-from django.shortcuts import render
 from .models import ChargeSessionCost
 from rest_framework import generics
 from .serializer import ChargeSessionCostSerializer
 from rest_framework.permissions import IsAuthenticated
 
-
 class ChargeSessionCostList(generics.ListAPIView):
-    # API endpoint that allows customer to be viewed.
-    # queryset = ChargeSessionCost.objects.filter()[:15]
     serializer_class = ChargeSessionCostSerializer
     permission_classes = [IsAuthenticated]
     model = ChargeSessionCost
