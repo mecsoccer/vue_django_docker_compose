@@ -3,7 +3,6 @@ from .models import ChargeSessionCost
 from rest_framework import generics
 from .serializer import ChargeSessionCostSerializer
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 
 class ChargeSessionCostList(generics.ListAPIView):
