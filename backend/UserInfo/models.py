@@ -3,6 +3,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 )
 
+
 class UserInfoManager(BaseUserManager):
     use_in_migration = True
 
@@ -27,6 +28,7 @@ class UserInfoManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser = True')
 
         return self.create_user(email, password, **extra_fields)
+
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     username = None
